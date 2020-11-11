@@ -1,0 +1,28 @@
+---
+- name: install docker
+  shell: curl -sSL https://get.docker.com/ | sh
+
+- name: update cgroup driver
+  copy:
+    src: docker-daemon.json
+    dest: /etc/docker/daemon.json
+
+- name: enable cgroups limit support
+  lineinfile:
+    dest: /boot/cmdline.txt
+    line: "$ s/$/ cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 swapaccount=1"
+    regexp: "^ cgroup_enable=cpuset"
+    owner: root
+    state: present
+    insertafter: EOF
+    create: True
+
+- name: allow iptables to see bridged traffic
+  copy:
+    content: "net.bridge.bridge-nf-call-ip6tables = 1 \n net.bridge.bridge-nf-call-iptables = 1"
+    dest: /etc/docker/daemon.json
+  register: net_bridge
+
+- shell: sysctl -p --system
+  become: yes
+  when: net_bridge.changed

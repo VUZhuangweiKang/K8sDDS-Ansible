@@ -1,0 +1,43 @@
+---
+- name: install curl if not existing
+  apt:  
+    name: curl
+    state: latest
+
+- name: add kubernetes signing key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: add kubernetes into defailt apt repository
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: install kubernetes
+  apt:
+    name: {{ item }} 
+    state: present
+    update_cache: yes
+  with_items:
+    - kubeadm 
+    - kubelet 
+    - kubectl
+
+- name: hold installed kubernetes packages
+  dpkg_selections:
+    name: {{ item }}
+    selection: hold
+  with_items:
+    - kubeadm 
+    - kubelet 
+    - kubectl
+
+- name: register a variable to verify kubernetes installation
+  shell: kubeadm version
+  register: kube_check
+
+- name: turn off swap
+  shell: swapoff –a
+  when: kube_check.stdout.find('BuildDate') != -1
+
