@@ -2,6 +2,7 @@
 - name: worker nodes join the cluster
   hosts: workers
   become: yes
+  become_user: root
   gather_facts: no
   tasks:
     - name: obtain work nodes join token

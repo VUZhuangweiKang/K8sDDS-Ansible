@@ -2,6 +2,7 @@
 - name: install K8sDDS dependencies
   hosts: all
   become: yes
+  become_user: root
   gather_facts: no
   tasks: 
     - include: optimize_os.yml

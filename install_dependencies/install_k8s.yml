@@ -16,7 +16,7 @@
 
 - name: install kubernetes
   apt:
-    name: {{ item }} 
+    name: "{{ item }}"
     state: present
     update_cache: yes
   with_items:
@@ -26,7 +26,7 @@
 
 - name: hold installed kubernetes packages
   dpkg_selections:
-    name: {{ item }}
+    name: "{{ item }}"
     selection: hold
   with_items:
     - kubeadm 
@@ -36,8 +36,4 @@
 - name: register a variable to verify kubernetes installation
   shell: kubeadm version
   register: kube_check
-
-- name: turn off swap
-  shell: swapoff –a
-  when: kube_check.stdout.find('BuildDate') != -1
 

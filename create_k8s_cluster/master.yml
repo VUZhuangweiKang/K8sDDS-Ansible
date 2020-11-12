@@ -2,6 +2,7 @@
 - name: create kubernetes cluster
   hosts: master
   become: yes
+  become_user: root
   gather_facts: no
   vars:
     cni: {{ cni }}

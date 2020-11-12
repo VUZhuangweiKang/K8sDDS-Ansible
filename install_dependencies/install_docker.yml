@@ -1,6 +1,11 @@
 ---
+- name: check if docker exist
+  shell: docker -v | echo $?
+  register: check_docker
+
 - name: install docker
   shell: curl -sSL https://get.docker.com/ | sh
+  when: check_docker.stdout == "0"
 
 - name: update cgroup driver
   copy:

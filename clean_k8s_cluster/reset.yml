@@ -2,6 +2,7 @@
 - name: reset kubernetes master node
   hosts: master
   become: yes
+  become_user: root
   gather_facts: no
   vars:
     cni: {{ cni }}

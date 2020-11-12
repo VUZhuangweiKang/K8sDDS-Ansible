@@ -12,7 +12,7 @@
       net.core.netdev_max_backlog: 30000
       net.ipv4.ipfrag_high_thresh: 8388608
   sysctl:
-    name: "{{ item.name }}"
+    name: "{{ item.key }}"
     value: "{{ item.value }}"
     state: present
     reload: yes
