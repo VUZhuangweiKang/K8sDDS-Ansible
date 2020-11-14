@@ -7,11 +7,11 @@
 - name: reinstall libseccomp2(1/2)
   get_url:
     url: http://ftp.us.debian.org/debian/pool/main/libs/libseccomp/libseccomp2_2.5.0-3_armhf.deb
-    dest: ansible_env.HOME/libseccomp2_2.5.0-3_armhf.deb
+    dest: /home/pi/libseccomp2_2.5.0-3_armhf.deb
   when: check_docker.stdout.find('Docker Engine') == -1
 
 - name: reinstall libseccomp2(2/2)
-  shell: dpkg --force-all -P libseccomp2 && dpkg -i ansible_env.HOME/libseccomp2_2.5.0-3_armhf.deb
+  shell: dpkg --force-all -P libseccomp2 && dpkg -i /home/pi/libseccomp2_2.5.0-3_armhf.deb
   when: check_docker.stdout.find('Docker Engine') == -1
 
 - name: install docker
@@ -34,14 +34,7 @@
     dest: /etc/docker/daemon.json
 
 - name: enable cgroups limit support(for raspberry pi)
-  lineinfile:
-    dest: /boot/cmdline.txt
-    line: " cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 swapaccount=1"
-    regexp: "^ cgroup_enable=cpuset"
-    owner: root
-    state: present
-    insertafter: EOF
-    create: True
+  shell: sed -i '$ s/$/ cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 swapaccount=1/' /boot/cmdline.txt
 
 - name: allow iptables to see bridged traffic
   copy:
@@ -53,6 +46,8 @@
   become: yes
   when: net_bridge.changed
 
-- name: turn off swap
-  shell: swapoff -a
-  become: yes
+- name: start docker on root
+  systemd:
+    state: restarted
+    enabled: yes
+    name: docker

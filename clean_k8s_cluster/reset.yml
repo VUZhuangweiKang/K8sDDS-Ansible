@@ -1,7 +1,6 @@
 ---
 - name: reset kubernetes master node
   hosts: master
-  become: yes
   gather_facts: yes
   ignore_errors: yes
   vars:
@@ -12,7 +11,7 @@
     - name: delete worker nodes
       shell: kubectl delete nodes --all
     - name: reset master node
-      shell: kubeadm reset -f & rm /etc/cni/net.d/* & rm ansible_env.HOME/.kube/config
+      shell: kubeadm reset -f & rm /etc/cni/net.d/* & rm /home/pi/.kube/config
       become_user: root
 
 - name: reset all worker nodes

@@ -5,6 +5,8 @@
   become_user: root
   gather_facts: no
   tasks:
+    - name: turn off swap
+      shell: swapoff -a
     - name: obtain work nodes join token
       shell: kubeadm token create --print-join-command
       register: join_cmd

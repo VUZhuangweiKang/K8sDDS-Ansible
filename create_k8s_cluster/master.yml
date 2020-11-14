@@ -7,6 +7,8 @@
   vars:
     cni: "{{ cni }}"
   tasks:
+    - name: turn off swap
+      shell: swapoff -a
     - name: generate token
       shell: kubeadm token generate
       register: token
@@ -25,9 +27,7 @@
       when: cni == "weavenet"
     
     - name: generate kube config
-      shell: mkdir -p ansible_env.HOME/.kube & cp -i /etc/kubernetes/admin.conf ansible_env.HOME/.kube/config & chown $(id -u):$(id -g) ansible_env.HOME/.kube/config
+      shell: mkdir -p /home/pi/.kube & cp -i /etc/kubernetes/admin.conf /home/pi/.kube/config & chown $(id -u):$(id -g) /home/pi/.kube/config
     
     - name: install network plugin
       shell: kubectl apply -f create_k8s_cluster/plugins/{{ cni }}.yaml
-
-
