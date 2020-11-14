@@ -2,21 +2,24 @@
 - name: reset kubernetes master node
   hosts: master
   become: yes
-  become_user: root
-  gather_facts: no
+  gather_facts: yes
+  ignore_errors: yes
   vars:
-    cni: {{ cni }}
+    cni: "{{ cni }}"
   tasks:
     - name: drain master node
       shell: kubectl drain {{ ansible_hostname }} --delete-local-data --force --ignore-daemonsets
     - name: delete worker nodes
       shell: kubectl delete nodes --all
     - name: reset master node
-      shell: kubeadm reset -f & rm /etc/cni/net.d/* & rm $HOME/.kube/config
+      shell: kubeadm reset -f & rm /etc/cni/net.d/* & rm ansible_env.HOME/.kube/config
+      become_user: root
 
 - name: reset all worker nodes
   hosts: all
   become: yes
+  become_user: root
+  ignore_errors: yes
   gather_facts: no
   tasks:
     - name: reset worker
@@ -33,6 +36,8 @@
     - name: clear flannel
       shell: ip link delete cni0 & ip link delete flannel.1
       when: cni == "flannel"
-
-
-      
+    - name: resart kubelet
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: kubelet

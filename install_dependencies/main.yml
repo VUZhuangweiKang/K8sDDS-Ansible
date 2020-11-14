@@ -8,3 +8,5 @@
     - include: optimize_os.yml
     - include: install_docker.yml
     - include: install_k8s.yml
+    - name: Unconditionally reboot the machine with all defaults
+      reboot:

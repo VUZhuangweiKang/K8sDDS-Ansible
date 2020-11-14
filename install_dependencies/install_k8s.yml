@@ -1,18 +1,26 @@
 ---
+- name: check whether kubernetes is installed
+  shell: kubeadm version
+  ignore_errors: yes
+  register: check_k8s
+
 - name: install curl if not existing
   apt:  
     name: curl
     state: latest
+  when: check_k8s.stdout.find('kubeadm version') == -1
 
 - name: add kubernetes signing key
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
+  when: check_k8s.stdout.find('kubeadm version') == -1
 
 - name: add kubernetes into defailt apt repository
   apt_repository:
     repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
     state: present
+  when: check_k8s.stdout.find('kubeadm version') == -1
 
 - name: install kubernetes
   apt:
@@ -23,6 +31,7 @@
     - kubeadm 
     - kubelet 
     - kubectl
+  when: check_k8s.stdout.find('kubeadm version') == -1
 
 - name: hold installed kubernetes packages
   dpkg_selections:
@@ -32,8 +41,8 @@
     - kubeadm 
     - kubelet 
     - kubectl
+  when: check_k8s.stdout.find('kubeadm version') == -1
 
 - name: register a variable to verify kubernetes installation
   shell: kubeadm version
-  register: kube_check
-
+  when: check_k8s.stdout.find('kubeadm version') == -1

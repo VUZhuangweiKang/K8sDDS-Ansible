@@ -5,31 +5,29 @@
   become_user: root
   gather_facts: no
   vars:
-    cni: {{ cni }}
+    cni: "{{ cni }}"
   tasks:
     - name: generate token
       shell: kubeadm token generate
       register: token
-    - set_fact:
-      token: {{ token.stdout }}
 
     - name: create cluster with flannel cni
-      shell: kubeadm init --token={{ token }} --pod-network-cidr=10.244.0.0/16
+      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=10.244.0.0/16
       when: cni == "flannel"
     - name: create cluster with calico cni
-      shell: kubeadm init --token={{ token }} --pod-network-cidr=192.168.0.0/16
+      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=192.168.0.0/16
       when: cni == "calico"
     - name: create cluster with cilium cni
-      shell: kubeadm init --token={{ token }} --pod-network-cidr=10.217.0.0/16
+      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=10.217.0.0/16
       when: cni == "cilium"
     - name: create cluster with weavenet cni
       shell: kubeadm init
       when: cni == "weavenet"
     
     - name: generate kube config
-      shell: mkdir -p $HOME/.kube & cp -i /etc/kubernetes/admin.conf $HOME/.kube/config & chown $(id -u):$(id -g) $HOME/.kube/config
+      shell: mkdir -p ansible_env.HOME/.kube & cp -i /etc/kubernetes/admin.conf ansible_env.HOME/.kube/config & chown $(id -u):$(id -g) ansible_env.HOME/.kube/config
     
     - name: install network plugin
-      shell: kubectl apply -f plugins/"{{ cni }}".yaml
+      shell: kubectl apply -f create_k8s_cluster/plugins/{{ cni }}.yaml
 
 
