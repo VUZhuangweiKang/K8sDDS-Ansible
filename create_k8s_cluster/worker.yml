@@ -1,16 +1,23 @@
 ---
+- name: obtain join command
+  hosts: master
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks:
+    - shell: kubeadm token create --print-join-command
+      register: join_cmd
+    - add_host:
+        name: "K8S_JOIN_CMD"
+        token: "{{ join_cmd.stdout }}"
+
 - name: worker nodes join the cluster
-  hosts: all
+  hosts: workers
   become: yes
   become_user: root
   gather_facts: no
   tasks:
     - name: turn off swap
       shell: swapoff -a
-    - name: obtain work nodes join token
-      shell: kubeadm token create --print-join-command
-      register: join_cmd
-      delegate_to: master
     - name: let worker nodes join the cluster
-      shell: {{ join_cmd.stdout }}
-      delegate_to: workers
+      shell: "{{ hostvars['K8S_JOIN_CMD']['token'] }}"

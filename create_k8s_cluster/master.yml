@@ -27,7 +27,9 @@
       when: cni == "weavenet"
     
     - name: generate kube config
-      shell: mkdir -p /home/pi/.kube & cp -i /etc/kubernetes/admin.conf /home/pi/.kube/config & chown $(id -u):$(id -g) /home/pi/.kube/config
-    
+      shell: mkdir -p /home/pi/.kube && sudo cp -i /etc/kubernetes/admin.conf /home/pi/.kube/config && sudo chown $(id -u):$(id -g) /home/pi/.kube/config
+      become_user: pi
+
     - name: install network plugin
-      shell: kubectl apply -f create_k8s_cluster/plugins/{{ cni }}.yaml
+      shell: kubectl apply -f https://raw.githubusercontent.com/VUZhuangweiKang/k8s-cni/main/flannel.yml
+      become_user: pi
