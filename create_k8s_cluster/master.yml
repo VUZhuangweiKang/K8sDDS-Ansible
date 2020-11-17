@@ -31,5 +31,5 @@
       become_user: pi
 
     - name: install network plugin
-      shell: kubectl apply -f https://raw.githubusercontent.com/VUZhuangweiKang/k8s-cni/main/flannel.yml
+      shell: curl -sSL https://rawgit.com/coreos/flannel/master/Documentation/kube-flannel.yml | sed "s/amd64/arm/g" | kubectl create -f -
       become_user: pi
