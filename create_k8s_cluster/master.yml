@@ -6,6 +6,7 @@
   gather_facts: no
   vars:
     cni: "{{ cni }}"
+    apiserver: "{{ \"192.168.88.96\" }}"
   tasks:
     - name: turn off swap
       shell: swapoff -a
@@ -14,16 +15,16 @@
       register: token
 
     - name: create cluster with flannel cni
-      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=10.244.0.0/16
+      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={{ apiserver }}
       when: cni == "flannel"
     - name: create cluster with calico cni
-      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=192.168.0.0/16
+      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address={{ apiserver }}
       when: cni == "calico"
     - name: create cluster with cilium cni
-      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=10.217.0.0/16
+      shell: kubeadm init --token={{ token.stdout }} --pod-network-cidr=10.217.0.0/16 --apiserver-advertise-address={{ apiserver }}
       when: cni == "cilium"
     - name: create cluster with weavenet cni
-      shell: kubeadm init
+      shell: kubeadm init --apiserver-advertise-address={{ apiserver }}
       when: cni == "weavenet"
     
     - name: generate kube config

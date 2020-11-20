@@ -11,7 +11,7 @@
     - name: delete worker nodes
       shell: kubectl delete nodes --all
     - name: reset master node
-      shell: kubeadm reset -f && rm /etc/cni/net.d/* && rm /home/pi/.kube/config
+      shell: kubeadm reset -f && rm /etc/cni/net.d/* && rm -r /home/pi/.kube/*
       become_user: root
 
 - name: reset all worker nodes
@@ -22,18 +22,18 @@
   gather_facts: no
   tasks:
     - name: reset worker
-      shell: kubeadm reset -f
+      shell: kubeadm reset -f && rm /etc/cni/net.d/* && rm -r /home/pi/.kube/*
     - name: clear weave
-      shell: weave reset --force & ip link delete weave & rm /opt/cni/bin/weave-*
+      shell: weave reset --force && ip link delete weave && rm /opt/cni/bin/weave-*
       when: cni == "weave"
     - name: clear calico
-      shell: ip link delete calico & rm /opt/cni/bin/calico* & modprobe -r ipip
+      shell: ip link delete calico && rm /opt/cni/bin/calico* && modprobe -r ipip
       when: cni == "calico"
     - name: clear cilium
-      shell: ip link delete cilium_vxlan & ip link delete cilium_net & rm /opt/cni/bin/cilium*
+      shell: ip link delete cilium_vxlan && ip link delete cilium_net && rm /opt/cni/bin/cilium*
       when: cni == "cilium"
     - name: clear flannel
-      shell: ip link delete cni0 & ip link delete flannel.1
+      shell: ip link delete cni0 && ip link delete flannel.1
       when: cni == "flannel"
     - name: resart kubelet
       systemd:
