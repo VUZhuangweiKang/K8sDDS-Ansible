@@ -26,7 +26,7 @@
 - name: create docker config file
   copy:
     dest: /etc/systemd/system/docker.service.d/docker.conf
-    content: "[Service] \n ExecStart= \n ExecStart=/usr/bin/dockerd"
+    content: "[Service] \nExecStart= \nExecStart=/usr/bin/dockerd"
 
 - name: update cgroup driver(for raspberry pi)
   copy:
